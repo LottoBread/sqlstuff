@@ -94,6 +94,11 @@ void dbRegister(MYSQL* con, string username, string password){
     execSQLQuery(con, "INSERT INTO usr (username, password, balance) VALUES (\"" + username + "\", \"" + password + "\", 10000);");
 }
 
+auto dbCheck(MYSQL* con, string username){
+    auto result = execSQLQuery(con, "SELECT username FROM usr WHERE username = \"" + username + "\";");
+    int num_fields = mysql_num_rows(result.res);
+    return num_fields;
+}
 
 int main(int argc, char const *argv[])
 {
@@ -126,10 +131,10 @@ int main(int argc, char const *argv[])
                     cout << "Register a new account\n";
                     cout << "Enter a username\n";
                     cin >> username;
-                        if(dbPull(con, "username", username) == username){ //username already exists works, when user check returns null, program throws segmentation fault.
+                        if(dbCheck(con, username) == 1){                                         //(dbPull(con, "username", username) == username){ //username already exists works, when user check returns null, program throws segmentation fault.
                             cout << "User already exists.\n";
                     }
-                        else{
+                        else if(dbCheck(con, username) == 0){
                             cout << "Enter a password\n";
                             cin >> password;
                             dbRegister(con, username, password);
@@ -143,7 +148,6 @@ int main(int argc, char const *argv[])
                     cout << "Type a username:\n";
                     cin >> username;
                     cout << "Enter password\n";
-                    cout << dbPull(con, "username", username);
                     cin >> newstring;
                     auto fetched = dbPull(con, "password", username);
                     if(fetched == newstring)
